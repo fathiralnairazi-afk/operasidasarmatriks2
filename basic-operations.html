@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operasi Dasar Matriks - Matematika Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --terracotta: #D2691E;
+            --sage: #9CAF88;
+            --navy: #2C3E50;
+            --cream: #FAF7F0;
+            --charcoal: #333333;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: var(--charcoal);
+            overflow-x: hidden;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(135deg, var(--cream) 0%, #F5F2E8 100%);
+            position: relative;
+        }
+        
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('math-background.png') center/cover;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .content-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(210, 105, 30, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .content-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(210, 105, 30, 0.15);
+            border-color: var(--terracotta);
+        }
+        
+        .nav-glass {
+            background: rgba(250, 247, 240, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(210, 105, 30, 0.1);
+        }
+        
+        .matrix-visual {
+            font-family: 'JetBrains Mono', monospace;
+            background: white;
+            border: 2px solid var(--navy);
+            border-radius: 12px;
+            padding: 20px;
+            display: inline-block;
+            min-width: 150px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .matrix-visual:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(44, 62, 80, 0.2);
+        }
+        
+        .operator-large {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--terracotta);
+            margin: 0 30px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .property-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(250,247,240,0.9));
+            border-left: 4px solid var(--terracotta);
+            transition: all 0.3s ease;
+        }
+        
+        .property-card:hover {
+            border-left-color: var(--sage);
+            transform: translateX(8px);
+        }
+        
+        .interactive-demo {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 2px solid var(--sage);
+        }
+        
+        .step-indicator {
+            background: var(--terracotta);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        
+        .quiz-option {
+            background: white;
+            border: 2px solid var(--sage);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            border-color: var(--terracotta);
+            background: rgba(210, 105, 30, 0.05);
+        }
+        
+        .quiz-option.correct {
+            border-color: #27AE60;
+            background: rgba(39, 174, 96, 0.1);
+        }
+        
+        .quiz-option.incorrect {
+            border-color: #E74C3C;
+            background: rgba(231, 76, 60, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-glass fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-th text-2xl text-terracotta" style="color: var(--terracotta);"></i>
+                    <h1 class="text-xl font-bold" style="font-family: 'Playfair Display', serif; color: var(--navy);">Matriks Interaktif</h1>
+                </div>
+                <div class="hidden md:flex space-x-6">
+                    <a href="index.html" class="nav-link hover:text-terracotta transition-colors" style="color: var(--charcoal);">Beranda</a>
+                    <a href="#basic-ops" class="nav-link hover:text-terracotta transition-colors" style="color: var(--charcoal);">Operasi Dasar</a>
+                    <a href="advanced-operations.html" class="nav-link hover:text-terracotta transition-colors" style="color: var(--charcoal);">Operasi Lanjut</a>
+                    <a href="index.html#calculator" class="nav-link hover:text-terracotta transition-colors" style="color: var(--charcoal);">Kalkulator</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg pt-24 pb-12">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-5xl font-bold mb-6 fade-in" style="font-family: 'Playfair Display', serif; color: var(--navy);">
+                Operasi Dasar Matriks
+            </h1>
+            <p class="text-xl mb-8 fade-in" style="color: var(--charcoal);">
+                Memahami penjumlahan, pengurangan, dan perkalian skalar pada matriks
+            </p>
+            <div class="max-w-2xl mx-auto fade-in">
+                <img src="matrix-operations.png" alt="Operasi Matriks" class="w-full h-auto rounded-2xl shadow-lg">
+            </div>
+        </div>
+    </section>
+
+    <!-- Penjumlahan Matriks Section -->
+    <section id="addition" class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4 fade-in" style="font-family: 'Playfair Display', serif; color: var(--navy);">
+                    Penjumlahan Matriks
+                </h2>
+                <p class="text-lg fade-in" style="color: var(--charcoal);">
+                    Dua matriks dapat dijumlahkan jika memiliki ordo yang sama
+                </p>
+            </div>
+
+            <div class="max-w-6xl mx-auto">
+                <!-- Visual Example -->
+                <div class="interactive-demo mb-12 fade-in">
+                    <h3 class="text-2xl font-bold mb-6 text-center" style="color: var(--navy);">Contoh Penjumlahan</h3>
+                    <div class="flex items-center justify-center flex-wrap gap-4 mb-6">
+                        <div class="matrix-visual">
+                            <div class="text-lg font-bold mb-2">Matriks A</div>
+                            <div class="space-y-1">
+                                <div><span class="bg-yellow-200 px-2 py-1 rounded">3</span> <span class="bg-yellow-200 px-2 py-1 rounded">1</span></div>
+                                <div><span class="bg-blue-200 px-2 py-1 rounded">4</span> <span class="bg-blue-200 px-2 py-1 rounded">2</span></div>
+                            </div>
+                        </div>
+                        <div class="operator-large">+</div>
+                        <div class="matrix-visual">
+                            <div class="text-lg font-bold mb-2">Matriks B</div>
+                            <div class="space-y-1">
+                                <div><span class="bg-yellow-200 px-2 py-1 rounded">1</span> <span class="bg-yellow-200 px-2 py-1 rounded">5</span></div>
+                                <div><span class="bg-blue-200 px-2 py-1 rounded">3</span> <span class="bg-blue-200 px-2 py-1 rounded">2</span></div>
+                            </div>
+                        </div>
+                        <div class="operator-large">=</div>
+                        <div class="matrix-visual">
+                            <div class="text-lg font-bold mb-2">Hasil A + B</div>
+                            <div class="space-y-1">
+                                <div><span class="bg-green-200 px-2 py-1 rounded">4</span> <span class="bg-green-200 px-2 py-1 rounded">6</span></div>
+                                <div><span class="bg-green-200 px-2 py-1 rounded">7</span> <span class="bg-green-200 px-2 py-1 rounded">4</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center text-sm" style="color: var(--charcoal);">
+                        Setiap elemen pada posisi yang sama dijumlahkan: (3+1)=4, (1+5)=6, (4+3)=7, (2+2)=4
+                    </div>
+                </div>
+
+                <!-- Properties -->
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="content-card p-6 rounded-xl slide-in-left">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--navy);">
+                            <i class="fas fa-check-circle mr-2" style="color: var(--terracotta);"></i>
+                            Sifat Komutatif
+                        </h3>
+                        <p class="mb-4" style="color: var(--charcoal);">A + B = B + A</p>
+                        <p class="text-sm" style="color: var(--charcoal);">Urutan penjumlahan tidak mempengaruhi hasil akhir.</p>
+                    </div>
+
+                    <div class="content-card p-6 rounded-xl slide-in-right">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--navy);">
+                            <i class="fas fa-check-circle mr-2" style="color: var(--sage);"></i>
+                            Sifat Asosiatif
+                        </h3>
+                        <p class="mb-4" style="color: var(--charcoal);">(A + B) + C = A + (B + C)</p>
+                        <p class="text-sm" style="color: var(--charcoal);">Cara pengelompokan tidak mempengaruhi hasil.</p>
+                    </div>
+
+                    <div class="content-card p-6 rounded-xl slide-in-left">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--navy);">
+                            <i class="fas fa-check-circle mr-2" style="color: var(--terracotta);"></i>
+                            Elemen Identitas
+                        </h3>
+                        <p class="mb-4" style="color: var(--charcoal);">A + O = A</p>
+                        <p class="text-sm" style="color: var(--charcoal);">Menjumlahkan dengan matriks nol (O) tidak mengubah matriks.</p>
+                    </div>
+
+                    <div class="content-card p-6 rounded-xl slide-in-right">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--navy);">
+                            <i class="fas fa-check-circle mr-2" style="color: var(--sage);"></i>
+                            Elemen Invers
+                        </h3>
+                        <p class="mb-4" style="color: var(--charcoal);">A + (-A) = O</p>
+                        <p class="text-sm" style="color: var(--charcoal);">Menjumlahkan dengan negatifnya menghasilkan matriks nol.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pengurangan Matriks Section -->
+    <section id="subtraction" class="py-16" style="background: var(--cream);">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4 fade-in" style="font-family: 'Playfair Display', serif; color: var(--navy);">
+                    Pengurangan Matriks
+                </h2>
+                <p class="text-lg fade-in" style="color: var(--charcoal);">
+                    Pengurangan dilakukan elemen per elemen, mirip dengan penjumlahan
+                </p>
+            </div>
+
+            <div class="max-w-6xl mx-auto">
+                <!-- Visual Example -->
+                <div class="interactive-demo mb-12 fade-in">
+                    <h3 class="text-2xl font-bold mb-6 text-center" style="color: var(--navy);">Contoh Pengurangan</h3>
+                    <div class="flex items-center justify-center flex-wrap gap-4 mb-6">
+                        <div class="matrix-visual">
+                            <div class="text-lg font-bold mb-2">Matriks A</div>
+                            <div class="space-y-1">
+                                <div><span class="bg-yellow-200 px-2 py-1 rounded">8</span> <span class="bg-yellow-200 px-2 py-1 rounded">5</span></div>
+                                <div><span class="bg-blue-200 px-2 py-1 rounded">6</span> <span class="bg-blue-200 px-2 py-1 rounded">3</span></div>
+                            </div>
+                        </div>
+                        <div class="operator-large" style="color: var(--sage);">-</div>
+                        <div class="matrix-visual">
+                            <div class="text-lg font-bold mb-2">Matriks B</div>
+                            <div class="space-y-1">
+                                <div><span class="bg-yellow-200 px-2 py-1 rounded">2</span> <span class="bg-yellow-200 px-2 py-1 rounded">1</span></div>
+                                <div><span class="bg-blue-200 px-2 py-1 rounded">4</span> <span class="bg-blue-200 px-2 py-1 rounded">1</span></div>
+                            </div>
+                        </div>
+                        <div class="operator-large" style="color: var(--sage);">=</div>
+                        <div class="matrix-visual">
+                            <div class="text-lg font-bold mb-2">Hasil A - B</div>
+                            <div class="space-y-1">
+                                <div><span class="bg-red-200 px-2 py-1 rounded">6</span> <span class="bg-red-200 px-2 py-1 rounded">4</span></div>
+                                <div><span class="bg-red-200 px-2 py-1 rounded">2</span> <span class="bg-red-200 px-2 py-1 rounded">2</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center text-sm" style="color: var(--charcoal);">
+                        Setiap elemen pada posisi yang sama dikurangkan: (8-2)=6, (5-1)=4, (6-4)=2, (3-1)=2
+                    </div>
+                </div>
+
+                <!-- Interactive Exercise -->
+                <div class="content-card p-8 rounded-xl fade-in">
+                    <h3 class="text-2xl font-bold mb-6 text-center" style="color: var(--navy);">Latihan Pengurangan</h3>
+                    <div class="text-center mb-6">
+                        <p class="mb-4">Hitung: A - B</p>
+                        <div class="flex items-center justify-center gap-4 mb-4">
+                            <div class="matrix-visual text-sm">
+                                <div class="font-bold mb-2">A =</div>
+                                <div>[ 7  3 ]</div>
+                                <div>[ 2  9 ]</div>
+                            </div>
+                            <div class="text-2xl font-bold" style="color: var(--sage);">-</div>
+                            <div class="matrix-visual text-sm">
+                                <div class="font-bold mb-2">B =</div>
+                                <div>[ 4  1 ]</div>
+                                <div>[ 3  5 ]</div>
+                            </div>
+                            <div class="text-2xl font-bold">=</div>
+                            <div class="matrix-visual text-sm">
+                                <div class="font-bold mb-2">?</div>
+                                <div>[ _  _ ]</div>
+                                <div>[ _  _ ]</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="max-w-md mx-auto">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <input type="number" id="sub-result-11" placeholder="c₁₁" class="p-3 border-2 border-sage rounded-lg text-center font-mono">
+                            <input type="number" id="sub-result-12" placeholder="c₁₂" class="p-3 border-2 border-sage rounded-lg text-center font-mono">
+                            <input type="number" id="sub-result-21" placeholder="c₂₁" class="p-3 border-2 border-sage rounded-lg text-center font-mono">
+                            <input type="number" id="sub-result-22" placeholder="c₂₂" class="p-3 border-2 border-sage rounded-lg text-center font-mono">
+                        </div>
+                        <button onclick="checkSubtraction()" class="w-full py-3 rounded-lg font-semibold text-white transition-all" style="background: var(--terracotta);">
+                            Periksa Jawaban
+                        </button>
+                        <div id="subtraction-feedback" class="mt-4 text-center font-semibold"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Perkalian Skalar Section -->
+    <section id="scalar" class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4 fade-in" style="font-family: 'Playfair Display', serif; color: var(--navy);">
+                    Perkalian Matriks dengan Skalar
+                </h2>
+                <p class="text-lg fade-in" style="color: var(--charcoal);">
+                    Mengalikan setiap elemen matriks dengan sebuah bilangan (skalar)
+                </p>
+            </div>
+
+            <div class="max-w-6xl mx-auto">
+                <!-- Visual Example -->
+                <div class="interactive-demo mb-12 fade-in">
+                    <h3 class="text-2xl font-bold mb-6 text-center" style="color: var(--navy);">Contoh Perkalian Skalar</h3>
+                    <div class="flex items-center justify-center flex-wrap gap-4 mb-6">
+                        <div class="text-4xl font-bold" style="color: var(--terracotta);">3</div>
+                        <div class="operator-large" style="color: var(--terracotta);">×</div>
+                        <div class="matrix-visual">
+                            <div class="text-lg font-bold mb-2">Matriks A</div>
+                            <div class="space-y-1">
+                                <div><span class="bg-yellow-200 px-2 py-1 rounded">2</span> <span class="bg-blue-200 px-2 py-1 rounded">1</span></div>
+                                <div><span class="bg-green-200 px-2 py-1 rounded">4</span> <span class="bg-purple-200 px-2 py-1 rounded">3</span></div>
+                            </div>
+                        </div>
+                        <div class="operator-large" style="color: var(--terracotta);">=</div>
+                        <div class="matrix-visual">
+                            <div class="text-lg font-bold mb-2">Hasil 3A</div>
+                            <div class="space-y-1">
+                                <div><span class="bg-yellow-200 px-2 py-1 rounded">6</span> <span class="bg-blue-200 px-2 py-1 rounded">3</span></div>
+                                <div><span class="bg-green-200 px-2 py-1 rounded">12</span> <span class="bg-purple-200 px-2 py-1 rounded">9</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center text-sm" style="color: var(--charcoal);">
+                        Setiap elemen dikalikan dengan skalar 3: (3×2)=6, (3×1)=3, (3×4)=12, (3×3)=9
+                    </div>
+                </div>
+
+                <!-- Properties -->
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="property-card p-6 rounded-xl slide-in-left">
+                        <h3 class="text-xl font-bold mb-3" style="color: var(--navy);">
+                            <i class="fas fa-arrow-right mr-2" style="color: var(--terracotta);"></i>
+                            Distributif terhadap Penjumlahan
+                        </h3>
+                        <p class="font-mono text-lg mb-2">k(A + B) = kA + kB</p>
+                        <p class="text-sm" style="color: var(--charcoal);">Skalar dapat didistribusikan ke dalam penjumlahan matriks.</p>
+                    </div>
+
+                    <div class="property-card p-6 rounded-xl slide-in-right">
+                        <h3 class="text-xl font-bold mb-3" style="color: var(--navy);">
+                            <i class="fas fa-arrow-right mr-2" style="color: var(--sage);"></i>
+                            Distributif terhadap Penjumlahan Skalar
+                        </h3>
+                        <p class="font-mono text-lg mb-2">(k + m)A = kA + mA</p>
+                        <p class="text-sm" style="color: var(--charcoal);">Penjumlahan skalar dapat didistribusikan ke dalam matriks.</p>
+                    </div>
+
+                    <div class="property-card p-6 rounded-xl slide-in-left">
+                        <h3 class="text-xl font-bold mb-3" style="color: var(--navy);">
+                            <i class="fas fa-arrow-right mr-2" style="color: var(--terracotta);"></i>
+                            Asosiatif
+                        </h3>
+                        <p class="font-mono text-lg mb-2">k(mA) = (km)A</p>
+                        <p class="text-sm" style="color: var(--charcoal);">Urutan perkalian skalar tidak mempengaruhi hasil.</p>
+                    </div>
+
+                    <div class="property-card p-6 rounded-xl slide-in-right">
+                        <h3 class="text-xl font-bold mb-3" style="color: var(--navy);">
+                            <i class="fas fa-arrow-right mr-2" style="color: var(--sage);"></i>
+                            Identitas
+                        </h3>
+                        <p class="font-mono text-lg mb-2">1A = A</p>
+                        <p class="text-sm" style="color: var(--charcoal);">Mengalikan dengan 1 tidak mengubah matriks.</p>
+                    </div>
+                </div>
+
+                <!-- Interactive Quiz -->
+                <div class="content-card p-8 rounded-xl fade-in">
+                    <h3 class="text-2xl font-bold mb-6 text-center" style="color: var(--navy);">Quiz Cepat</h3>
+                    <div class="text-center mb-6">
+                        <p class="text-lg mb-4">Jika A = [[2, 4], [1, 3]] dan k = 5, maka kA = ?</p>
+                    </div>
+                    
+                    <div class="max-w-md mx-auto space-y-3">
+                        <div class="quiz-option" onclick="selectQuizOption(this, false)">
+                            A. [[10, 20], [5, 15]]
+                        </div>
+                        <div class="quiz-option" onclick="selectQuizOption(this, true)">
+                            B. [[10, 20], [5, 15]]
+                        </div>
+                        <div class="quiz-option" onclick="selectQuizOption(this, false)">
+                            C. [[7, 9], [6, 8]]
+                        </div>
+                        <div class="quiz-option" onclick="selectQuizOption(this, false)">
+                            D. [[3, 1], [4, 2]]
+                        </div>
+                    </div>
+                    
+                    <div id="quiz-explanation" class="mt-6 text-center" style="display: none;">
+                        <p class="font-semibold mb-2">Penjelasan:</p>
+                        <p class="text-sm" style="color: var(--charcoal);">
+                            Setiap elemen dikalikan dengan 5: 5×2=10, 5×4=20, 5×1=5, 5×3=15
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Section -->
+    <section class="py-16" style="background: var(--cream);">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4 fade-in" style="font-family: 'Playfair Display', serif; color: var(--navy);">
+                    Rangkuman Operasi Dasar
+                </h2>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="content-card p-6 rounded-xl text-center fade-in">
+                        <i class="fas fa-plus text-4xl mb-4" style="color: var(--terracotta);"></i>
+                        <h3 class="text-xl font-bold mb-3" style="color: var(--navy);">Penjumlahan</h3>
+                        <p class="text-sm mb-3">A + B = C</p>
+                        <p class="text-xs" style="color: var(--charcoal);">Elemen per elemen, memerlukan ukuran sama</p>
+                    </div>
+
+                    <div class="content-card p-6 rounded-xl text-center fade-in">
+                        <i class="fas fa-minus text-4xl mb-4" style="color: var(--sage);"></i>
+                        <h3 class="text-xl font-bold mb-3" style="color: var(--navy);">Pengurangan</h3>
+                        <p class="text-sm mb-3">A - B = C</p>
+                        <p class="text-xs" style="color: var(--charcoal);">Elemen per elemen, mirip penjumlahan</p>
+                    </div>
+
+                    <div class="content-card p-6 rounded-xl text-center fade-in">
+                        <i class="fas fa-times text-4xl mb-4" style="color: var(--terracotta);"></i>
+                        <h3 class="text-xl font-bold mb-3" style="color: var(--navy);">Perkalian Skalar</h3>
+                        <p class="text-sm mb-3">kA = B</p>
+                        <p class="text-xs" style="color: var(--charcoal);">Setiap elemen dikalikan skalar k</p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-12">
+                    <a href="advanced-operations.html" class="inline-block px-8 py-4 rounded-lg font-semibold text-white transition-all" style="background: var(--navy);">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Lanjut ke Operasi Lanjut
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12" style="background: var(--navy); color: white;">
+        <div class="container mx-auto px-6 text-center">
+            <div class="flex items-center justify-center space-x-3 mb-4">
+                <i class="fas fa-th text-2xl" style="color: var(--terracotta);"></i>
+                <h3 class="text-xl font-bold" style="font-family: 'Playfair Display', serif;">Matriks Interaktif</h3>
+            </div>
+            <p class="mb-4">Matemaktiva - Membuat matematika menjadi menyenangkan</p>
+            <p class="text-sm opacity-75">© 2024 Website Pendidikan Matematika. Dibuat dengan ❤️ untuk pembelajaran.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fade in animations
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((el, index) => {
+                anime({
+                    targets: el,
+                    opacity: [0, 1],
+                    translateY: [30, 0],
+                    duration: 800,
+                    delay: index * 200,
+                    easing: 'easeOutQuart'
+                });
+            });
+
+            // Slide animations
+            const slideLeftElements = document.querySelectorAll('.slide-in-left');
+            slideLeftElements.forEach((el, index) => {
+                anime({
+                    targets: el,
+                    opacity: [0, 1],
+                    translateX: [-50, 0],
+                    duration: 800,
+                    delay: 1000 + index * 200,
+                    easing: 'easeOutQuart'
+                });
+            });
+
+            const slideRightElements = document.querySelectorAll('.slide-in-right');
+            slideRightElements.forEach((el, index) => {
+                anime({
+                    targets: el,
+                    opacity: [0, 1],
+                    translateX: [50, 0],
+                    duration: 800,
+                    delay: 1000 + index * 200,
+                    easing: 'easeOutQuart'
+                });
+            });
+        });
+
+        // Check subtraction answer
+        function checkSubtraction() {
+            const c11 = document.getElementById('sub-result-11').value;
+            const c12 = document.getElementById('sub-result-12').value;
+            const c21 = document.getElementById('sub-result-21').value;
+            const c22 = document.getElementById('sub-result-22').value;
+            
+            const correct = (c11 == '3' && c12 == '2' && c21 == '-1' && c22 == '4');
+            const feedback = document.getElementById('subtraction-feedback');
+            
+            if (correct) {
+                feedback.innerHTML = '<span style="color: #27AE60;">✓ Benar! A - B = [[3, 2], [-1, 4]]</span>';
+                feedback.style.color = '#27AE60';
+            } else {
+                feedback.innerHTML = '<span style="color: #E74C3C;">✗ Coba lagi. Ingat: kurangkan elemen per elemen!</span>';
+                feedback.style.color = '#E74C3C';
+            }
+        }
+
+        // Quiz option selection
+        function selectQuizOption(element, isCorrect) {
+            // Remove previous selections
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+            
+            if (isCorrect) {
+                element.classList.add('correct');
+                document.getElementById('quiz-explanation').style.display = 'block';
+                
+                anime({
+                    targets: element,
+                    scale: [1, 1.05, 1],
+                    duration: 500,
+                    easing: 'easeOutQuart'
+                });
+            } else {
+                element.classList.add('incorrect');
+                
+                anime({
+                    targets: element,
+                    translateX: [-10, 10, -5, 5, 0],
+                    duration: 500,
+                    easing: 'easeOutQuart'
+                });
+            }
+        }
+    </script>
+    <script src="main.js"></script>
+</body>
+</html>
